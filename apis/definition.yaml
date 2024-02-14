@@ -1,0 +1,53 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: meetup.azure.alexanderpadberg.de
+spec:
+  group: azure.alexanderpadberg.de
+  names:
+    kind: XMeetup
+    plural: xmeetups
+  claimNames:
+    kind: Meetup
+    plural: meetups
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  description: Meetup configuration parameters.
+                  properties:
+                    name:
+                      type: string
+                      description: Base name for the resources will be appended with the resource specific prefix.
+                    deletionPolicy:
+                      description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
+                      enum:
+                        - Delete
+                        - Orphan
+                      type: string
+                      default: Delete
+                    providerConfigName:
+                      description: Crossplane ProviderConfig to use for provisioning this resources
+                      type: string
+                      default: default
+                  required:
+                    - name
+              required:
+                - parameters
+            status:
+              description: A Status represents the observed state
+              properties:
+                rg:
+                  description: Freeform field containing status information for the resources
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              type: object

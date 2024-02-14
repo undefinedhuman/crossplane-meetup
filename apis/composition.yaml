@@ -1,0 +1,51 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: meetup.azure.alexanderpadberg.de
+spec:
+  compositeTypeRef:
+    apiVersion: azure.alexanderpadberg.de/v1alpha1
+    kind: XMeetup
+  patchSets:
+    - name: set-tags
+      patches:
+        - fromFieldPath: metadata.name
+          toFieldPath: spec.forProvider.tags.compositionRef
+          type: FromCompositeFieldPath
+    - name: set-name
+      patches:
+        - fromFieldPath: spec.parameters.name
+          toFieldPath: metadata.annotations.crossplane.io/external-name
+          type: FromCompositeFieldPath
+        - fromFieldPath: spec.parameters.name
+          toFieldPath: metadata.name
+          type: FromCompositeFieldPath
+    - name: set-provider-config-ref
+      patches:
+        - fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: spec.providerConfigRef.name
+          type: FromCompositeFieldPath
+    - name: set-deletion-policy
+      patches:
+        - fromFieldPath: spec.parameters.deletionPolicy
+          toFieldPath: spec.deletionPolicy
+          type: FromCompositeFieldPath
+  resources:
+    - name: resource-group
+      base:
+        apiVersion: azure.upbound.io/v1beta1
+        kind: ResourceGroup
+        spec:
+          forProvider:
+            location: West Europe
+            tags:
+              createdBy: crossplane
+      patches:
+        - type: PatchSet
+          patchSetName: set-name
+        - type: PatchSet
+          patchSetName: set-tags
+        - type: PatchSet
+          patchSetName: set-provider-config-ref
+        - type: PatchSet
+          patchSetName: set-deletion-policy

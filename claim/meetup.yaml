@@ -1,0 +1,7 @@
+apiVersion: azure.alexanderpadberg.de/v1alpha1
+kind: database
+metadata:
+  name: meetup
+spec:
+  parameters:
+    name: meetup-test
